@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FolderDao {
-    @Query("SELECT * FROM folders ORDER BY createdAt DESC")
-    fun getAllFolders(): Flow<List<FolderEntity>>
+    @Query("SELECT * FROM folders WHERE userId = :userId OR userId = '' ORDER BY createdAt DESC")
+    fun getAllFolders(userId: String): Flow<List<FolderEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFolder(folder: FolderEntity)

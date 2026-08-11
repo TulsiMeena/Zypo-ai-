@@ -49,7 +49,13 @@ class LiveTokenManager(private val context: Context) {
                 return@withContext userKey
             }
 
-            // 1. Attempt backend ephemeral token endpoint if available
+            // 1. Direct BuildConfig GEMINI_API_KEY for fast and reliable connection
+            val devKey = BuildConfig.GEMINI_API_KEY
+            if (!devKey.isNullOrBlank() && devKey != "DEFAULT_KEY") {
+                return@withContext devKey
+            }
+
+            // 2. Attempt backend ephemeral token endpoint if available
             if (firebaseIdToken != null) {
                 val tokenFromBackend = fetchTokenFromBackend(firebaseIdToken)
                 if (tokenFromBackend != null) {
@@ -59,18 +65,12 @@ class LiveTokenManager(private val context: Context) {
                 }
             }
 
-            // 2. Direct API ephemeral token request
+            // 3. Direct API ephemeral token request
             val directToken = fetchDirectEphemeralToken(firebaseIdToken)
             if (directToken != null) {
                 cachedToken = directToken
                 tokenExpiryTime = System.currentTimeMillis() + (25 * 60 * 1000)
                 return@withContext directToken
-            }
-
-            // 3. Fallback for development key if configured
-            val devKey = BuildConfig.GEMINI_API_KEY
-            if (!devKey.isNullOrBlank() && devKey != "DEFAULT_KEY") {
-                return@withContext devKey
             }
 
             return@withContext null

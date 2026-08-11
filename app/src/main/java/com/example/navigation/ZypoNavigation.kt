@@ -141,12 +141,10 @@ fun ZypoNavigation(
         composable(ZypoRoutes.AUTH_LANDING) {
             AuthLandingScreen(
                 onContinueWithGoogle = {
-                    // Trigger Google Auth fallback or credential flow
                     authViewModel.signInWithGoogleToken("google_id_token_demo")
                 },
                 onContinueWithEmail = { navController.navigate(ZypoRoutes.CREATE_ACCOUNT) },
-                onLoginClick = { navController.navigate(ZypoRoutes.LOGIN) },
-                onContinueAsGuest = { authViewModel.loginAsGuest() }
+                onLoginClick = { navController.navigate(ZypoRoutes.LOGIN) }
             )
         }
 
@@ -156,8 +154,7 @@ fun ZypoNavigation(
                 viewModel = authViewModel,
                 onBackClick = { navController.popBackStack() },
                 onLoginClick = { navController.navigate(ZypoRoutes.LOGIN) },
-                onContinueWithGoogle = { authViewModel.signInWithGoogleToken("google_id_token_demo") },
-                onContinueAsGuest = { authViewModel.loginAsGuest() }
+                onContinueWithGoogle = { authViewModel.signInWithGoogleToken("google_id_token_demo") }
             )
         }
 
@@ -168,8 +165,7 @@ fun ZypoNavigation(
                 onBackClick = { navController.popBackStack() },
                 onCreateAccountClick = { navController.navigate(ZypoRoutes.CREATE_ACCOUNT) },
                 onForgotPasswordClick = { navController.navigate(ZypoRoutes.FORGOT_PASSWORD) },
-                onContinueWithGoogle = { authViewModel.signInWithGoogleToken("google_id_token_demo") },
-                onContinueAsGuest = { authViewModel.loginAsGuest() }
+                onContinueWithGoogle = { authViewModel.signInWithGoogleToken("google_id_token_demo") }
             )
         }
 

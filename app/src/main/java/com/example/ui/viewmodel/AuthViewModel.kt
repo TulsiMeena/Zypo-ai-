@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.model.AuthState
 import com.example.data.model.UserProfile
 import com.example.data.repository.AuthRepository
+import com.example.util.NotificationHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -94,6 +95,7 @@ class AuthViewModel(val authRepository: AuthRepository) : ViewModel() {
             result.onSuccess { profile ->
                 _authState.value = AuthState.SUCCESS
                 _toastEvent.emit("Welcome back to Zypo AI, ${profile.displayName}!")
+                NotificationHelper.showWelcomeNotification(authRepository.context, profile.displayName)
             }.onFailure { err ->
                 _authState.value = AuthState.ERROR
                 _errorMessage.value = err.message ?: "Login failed. Please check your credentials."
@@ -140,6 +142,7 @@ class AuthViewModel(val authRepository: AuthRepository) : ViewModel() {
                     _authState.value = AuthState.SUCCESS
                 }
                 _toastEvent.emit("Welcome to Zypo AI, ${profile.displayName}!")
+                NotificationHelper.showWelcomeNotification(authRepository.context, profile.displayName)
             }.onFailure { err ->
                 _authState.value = AuthState.ERROR
                 _errorMessage.value = err.message ?: "Account creation failed."
@@ -190,6 +193,7 @@ class AuthViewModel(val authRepository: AuthRepository) : ViewModel() {
             result.onSuccess { profile ->
                 _authState.value = AuthState.SUCCESS
                 _toastEvent.emit("Signed in with Google as ${profile.displayName}")
+                NotificationHelper.showWelcomeNotification(authRepository.context, profile.displayName)
             }.onFailure { err ->
                 _authState.value = AuthState.ERROR
                 _errorMessage.value = err.message ?: "Google sign-in failed."
@@ -205,6 +209,7 @@ class AuthViewModel(val authRepository: AuthRepository) : ViewModel() {
             result.onSuccess { profile ->
                 _authState.value = AuthState.SUCCESS
                 _toastEvent.emit("Welcome to Zypo AI, Guest!")
+                NotificationHelper.showWelcomeNotification(authRepository.context, profile.displayName)
             }.onFailure { err ->
                 _authState.value = AuthState.ERROR
                 _errorMessage.value = err.message ?: "Guest login failed."

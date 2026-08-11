@@ -88,8 +88,8 @@ fun NovaTopBar(
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                // Brand Badge
-                ZypoLogo(symbolSize = 28.dp, showWordmark = true)
+                // Brand Badge (Logo symbol only, no text as requested)
+                ZypoLogo(symbolSize = 28.dp, showWordmark = false)
             }
 
             // Center: Model Selector Chip

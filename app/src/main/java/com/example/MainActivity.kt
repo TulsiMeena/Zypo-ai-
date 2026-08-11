@@ -1,12 +1,16 @@
 package com.example
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,6 +31,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { }
+                LaunchedEffect(Unit) {
+                    permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+
             // Instantiate Database, Repositories & ViewModels
             val database = remember { AppDatabase.getDatabase(applicationContext) }
             val repository = remember { RoomChatRepositoryImpl(applicationContext, database) }
@@ -35,6 +48,12 @@ class MainActivity : ComponentActivity() {
             val chatViewModel = remember { ChatViewModel(repository) }
             val settingsViewModel = remember { SettingsViewModel(repository) }
             val authViewModel = remember { AuthViewModel(authRepository) }
+
+            val currentUser by authRepository.currentUser.collectAsState()
+            androidx.compose.runtime.LaunchedEffect(currentUser) {
+                val uid = currentUser?.uid ?: "default_user"
+                repository.setCurrentUserId(uid)
+            }
 
             val settings by settingsViewModel.settings.collectAsState()
 

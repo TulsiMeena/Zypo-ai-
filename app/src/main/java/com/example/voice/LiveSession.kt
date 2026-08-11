@@ -65,8 +65,9 @@ class LiveSession(
             }
 
             val requestBuilder = Request.Builder().url(url)
-            if (!token.startsWith("AIzaSy")) {
-                requestBuilder.addHeader("Authorization", "Bearer $token")
+            if (!token.startsWith("AIzaSy") && (token.startsWith("ya29.") || token.startsWith("Bearer "))) {
+                val bearerToken = if (token.startsWith("Bearer ")) token else "Bearer $token"
+                requestBuilder.addHeader("Authorization", bearerToken)
             }
             val request = requestBuilder.build()
 
@@ -112,7 +113,10 @@ class LiveSession(
             val setupObj = JSONObject().apply {
                 put("model", MODEL)
                 put("generationConfig", JSONObject().apply {
-                    put("responseModalities", JSONArray().apply { put("AUDIO") })
+                    put("responseModalities", JSONArray().apply {
+                        put("AUDIO")
+                        put("TEXT")
+                    })
                     put("speechConfig", JSONObject().apply {
                         put("voiceConfig", JSONObject().apply {
                             put("prebuiltVoiceConfig", JSONObject().apply {
@@ -137,6 +141,26 @@ class LiveSession(
 
             Log.d(TAG, "Sending setup message...")
             ws.send(payload.toString())
+
+            // Immediately send an initial greeting prompt so AI speaks upon connection
+            val initialGreeting = JSONObject().apply {
+                put("clientContent", JSONObject().apply {
+                    put("turns", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("role", "user")
+                            put("parts", JSONArray().apply {
+                                put(JSONObject().apply {
+                                    put("text", "Namaste! Please introduce yourself briefly in 1 short warm line and ask how you can help me today.")
+                                })
+                            })
+                        })
+                    })
+                    put("turnComplete", true)
+                })
+            }
+            Log.d(TAG, "Sending initial auto-greeting prompt...")
+            ws.send(initialGreeting.toString())
+
             onSessionStateChanged(VoiceState.LISTENING)
         } catch (e: Exception) {
             Log.e(TAG, "Error building setup message", e)

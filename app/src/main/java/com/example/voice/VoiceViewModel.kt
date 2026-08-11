@@ -135,6 +135,13 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
             },
             onError = { err ->
                 updateError(err)
+                val fallbackGreeting = "Namaste! Main Zypo hoon. Main aapki kya madad kar sakti hoon?"
+                try {
+                    textToSpeech?.speak(fallbackGreeting, TextToSpeech.QUEUE_FLUSH, null, "fallback_greeting")
+                } catch (e: Exception) {
+                    Log.e(TAG, "TTS speak failed", e)
+                }
+                addTranscript("ZYPO", fallbackGreeting)
             }
         )
 
@@ -184,13 +191,8 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
         }
         _transcripts.value = newTranscripts
 
-        if (sender == "ZYPO" && _isSpeakerOn.value && text.isNotBlank()) {
+        if (sender == "ZYPO" && _isSpeakerOn.value && text.isNotBlank() && audioPlayer?.isPlaying() != true) {
             _voiceState.value = VoiceState.AI_SPEAKING
-            try {
-                textToSpeech?.speak(text, TextToSpeech.QUEUE_ADD, null, "zypo_tts_${System.currentTimeMillis()}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error in TTS speak", e)
-            }
         }
     }
 

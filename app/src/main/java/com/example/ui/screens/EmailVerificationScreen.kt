@@ -44,6 +44,7 @@ import com.example.ui.viewmodel.AuthViewModel
 fun EmailVerificationScreen(
     viewModel: AuthViewModel,
     onChangeEmailClick: () -> Unit,
+    onBackToLogin: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val email by viewModel.email.collectAsState()
@@ -152,9 +153,9 @@ fun EmailVerificationScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Continue to App Button
+            // Back to Login Button
             Button(
-                onClick = { viewModel.loginAsGuest() },
+                onClick = onBackToLogin,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -166,7 +167,7 @@ fun EmailVerificationScreen(
                 )
             ) {
                 Text(
-                    text = "Skip & Continue to AI App",
+                    text = "Back to Login",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )

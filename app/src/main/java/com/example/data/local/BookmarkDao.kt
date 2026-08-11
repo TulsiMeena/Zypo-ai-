@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookmarkDao {
-    @Query("SELECT * FROM bookmarks ORDER BY createdAt DESC")
-    fun getAllBookmarks(): Flow<List<BookmarkEntity>>
+    @Query("SELECT * FROM bookmarks WHERE userId = :userId OR userId = '' ORDER BY createdAt DESC")
+    fun getAllBookmarks(userId: String): Flow<List<BookmarkEntity>>
 
     @Query("SELECT * FROM bookmarks WHERE chatId = :chatId")
     fun getBookmarksForChat(chatId: String): Flow<List<BookmarkEntity>>

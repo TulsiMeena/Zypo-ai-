@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import android.util.Log
 
-class AuthRepository(private val context: Context) {
+class AuthRepository(val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("zypo_auth_prefs", Context.MODE_PRIVATE)
     private val firestoreSyncManager = FirestoreSyncManager(context)
@@ -398,9 +398,9 @@ class AuthRepository(private val context: Context) {
     private fun mapAuthError(e: Exception): String {
         val msg = e.message ?: ""
         return when {
-            msg.contains("badly formatted", ignoreCase = true) || msg.contains("invalid email", ignoreCase = true) ->
+            msg.contains("badly formatted", ignoreCase = true) || msg.contains("invalid email", ignoreCase = true) || msg.contains("invalid-email", ignoreCase = true) ->
                 "Please enter a valid email address."
-            msg.contains("wrong password", ignoreCase = true) || msg.contains("invalid-credential", ignoreCase = true) ->
+            msg.contains("wrong password", ignoreCase = true) || msg.contains("invalid-credential", ignoreCase = true) || msg.contains("supplied auth credential", ignoreCase = true) || msg.contains("credential", ignoreCase = true) ->
                 "Email or password is incorrect."
             msg.contains("user-not-found", ignoreCase = true) || msg.contains("no user record", ignoreCase = true) ->
                 "Account not found. Please create an account."
@@ -412,7 +412,7 @@ class AuthRepository(private val context: Context) {
                 "You're offline. Check your connection and try again."
             msg.contains("requires-recent-login", ignoreCase = true) ->
                 "For security reasons, please sign in again before deleting your account."
-            else -> "Authentication failed: ${e.localizedMessage ?: "Unknown error"}"
+            else -> "Authentication failed. Please check your credentials and try again."
         }
     }
 }

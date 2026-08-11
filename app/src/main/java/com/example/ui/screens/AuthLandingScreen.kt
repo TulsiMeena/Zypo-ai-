@@ -76,7 +76,8 @@ fun AuthLandingScreen(
             // Zypo AI Logo
             ZypoLogo(
                 symbolSize = 80.dp,
-                showWordmark = false,
+                showWordmark = true,
+                showSubtitle = true,
                 animated = true
             )
 
@@ -165,44 +166,6 @@ fun AuthLandingScreen(
                         text = "Continue with Email",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Continue as Guest Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(27.dp))
-                    .border(
-                        width = 1.dp,
-                        color = ElectricCyan.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(27.dp)
-                    )
-                    .clickable(onClick = onContinueAsGuest)
-                    .testTag("guest_auth_landing_button"),
-                color = DarkSurface
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = ElectricCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = "Continue as Guest (Try AI)",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ElectricCyan
                     )
                 }
             }

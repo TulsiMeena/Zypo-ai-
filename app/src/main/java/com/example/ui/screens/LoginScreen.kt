@@ -356,35 +356,6 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Continue as Guest Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(25.dp))
-                    .border(1.dp, ElectricCyan.copy(alpha = 0.5f), RoundedCornerShape(25.dp))
-                    .clickable(onClick = onContinueAsGuest)
-                    .testTag("guest_login_button"),
-                color = DarkSurface
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = ElectricCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text("Continue as Guest (Try AI)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = ElectricCyan)
-                }
-            }
-
             Spacer(modifier = Modifier.height(32.dp))
 
             // Bottom Link

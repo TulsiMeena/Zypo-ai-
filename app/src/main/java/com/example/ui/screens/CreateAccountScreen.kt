@@ -116,7 +116,12 @@ fun CreateAccountScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header Logo
-            ZypoLogo(symbolSize = 48.dp, showWordmark = true)
+            ZypoLogo(
+                symbolSize = 72.dp,
+                showWordmark = true,
+                showSubtitle = true,
+                animated = true
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -395,35 +400,6 @@ fun CreateAccountScreen(
                     Text("G", fontSize = 18.sp, fontWeight = FontWeight.Black, color = ElectricCyan)
                     Spacer(modifier = Modifier.width(10.dp))
                     Text("Continue with Google", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Continue as Guest Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(25.dp))
-                    .border(1.dp, ElectricCyan.copy(alpha = 0.5f), RoundedCornerShape(25.dp))
-                    .clickable(onClick = onContinueAsGuest)
-                    .testTag("guest_register_button"),
-                color = DarkSurface
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = ElectricCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text("Continue as Guest (Try AI)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = ElectricCyan)
                 }
             }
 

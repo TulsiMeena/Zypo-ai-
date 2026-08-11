@@ -33,6 +33,8 @@ class AudioPlayer(
     val queueSize: Int
         get() = audioQueue.size
 
+    fun isPlaying(): Boolean = isPlaying && audioQueue.isNotEmpty()
+
     fun init() {
         if (audioTrack != null) return
 

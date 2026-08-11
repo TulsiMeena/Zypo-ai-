@@ -8,6 +8,7 @@ import com.example.data.model.Chat
 @Entity(tableName = "chats")
 data class ChatEntity(
     @PrimaryKey val id: String,
+    val userId: String = "",
     val title: String,
     val updatedAt: Long,
     val isPinned: Boolean,

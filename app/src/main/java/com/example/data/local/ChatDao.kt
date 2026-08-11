@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ChatDao {
 
-    @Query("SELECT * FROM chats ORDER BY isPinned DESC, updatedAt DESC")
-    fun getAllChats(): Flow<List<ChatEntity>>
+    @Query("SELECT * FROM chats WHERE userId = :userId OR userId = '' ORDER BY isPinned DESC, updatedAt DESC")
+    fun getAllChats(userId: String): Flow<List<ChatEntity>>
 
     @Query("SELECT * FROM chats WHERE id = :chatId")
     suspend fun getChatById(chatId: String): ChatEntity?

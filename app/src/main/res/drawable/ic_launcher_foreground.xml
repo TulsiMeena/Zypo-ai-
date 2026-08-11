@@ -6,25 +6,55 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group>
-        <!-- Center Sparkle / Nova Core -->
+        <!-- Outer Glowing Ring Circle -->
         <path
-            android:pathData="M54,24 C54,40.5 40.5,54 24,54 C40.5,54 54,67.5 54,84 C54,67.5 67.5,54 84,54 C67.5,54 54,40.5 54,24 Z">
+            android:pathData="M54,16 A38,38 0 1,1 53.9,16 Z"
+            android:strokeWidth="3"
+            android:strokeColor="#00E5FF"/>
+
+        <!-- Z Ribbon Path -->
+        <path
+            android:pathData="M32,32 L68,32 C72,32 72,36 68,40 L38,68 L72,68 C76,68 76,74 70,74 L30,74 C26,74 26,68 30,64 L60,38 L32,38 C28,38 28,32 32,32 Z">
             <aapt:attr name="android:fillColor">
                 <gradient
-                    android:startX="24"
-                    android:startY="24"
-                    android:endX="84"
-                    android:endY="84"
+                    android:startX="30"
+                    android:startY="30"
+                    android:endX="75"
+                    android:endY="75"
                     android:type="linear">
-                    <item android:offset="0.0" android:color="#00E5FF"/>
-                    <item android:offset="0.5" android:color="#8A2BE2"/>
-                    <item android:offset="1.0" android:color="#FF007F"/>
+                    <item android:offset="0.0" android:color="#002244"/>
+                    <item android:offset="0.5" android:color="#0052FF"/>
+                    <item android:offset="1.0" android:color="#00E5FF"/>
                 </gradient>
             </aapt:attr>
         </path>
-        <!-- Inner Small Accent Sparkle -->
+
+        <!-- Upward Trend Arrow -->
         <path
-            android:pathData="M68,28 C68,34 62,38 56,38 C62,38 68,42 68,48 C68,42 74,38 80,38 C74,38 68,34 68,28 Z"
-            android:fillColor="#00E5FF" />
+            android:pathData="M48,60 L58,48 L66,52 L82,32"
+            android:strokeWidth="4"
+            android:strokeColor="#00E5FF"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"/>
+        <!-- Arrow Tip -->
+        <path
+            android:pathData="M82,32 L72,32 L82,42 Z"
+            android:fillColor="#00E5FF"/>
+
+        <!-- Green Candlestick Bar 1 -->
+        <path android:pathData="M60,58 L60,70" android:strokeWidth="1.5" android:strokeColor="#00E676"/>
+        <path android:pathData="M58,60 h4 v8 h-4 z" android:fillColor="#00E676"/>
+
+        <!-- Red Candlestick Bar 2 -->
+        <path android:pathData="M66,54 L66,66" android:strokeWidth="1.5" android:strokeColor="#FF3D00"/>
+        <path android:pathData="M64,56 h4 v7 h-4 z" android:fillColor="#FF3D00"/>
+
+        <!-- Green Candlestick Bar 3 -->
+        <path android:pathData="M72,48 L72,62" android:strokeWidth="1.5" android:strokeColor="#00E676"/>
+        <path android:pathData="M70,50 h4 v9 h-4 z" android:fillColor="#00E676"/>
+
+        <!-- Red Candlestick Bar 4 -->
+        <path android:pathData="M78,44 L78,56" android:strokeWidth="1.5" android:strokeColor="#FF3D00"/>
+        <path android:pathData="M76,46 h4 v7 h-4 z" android:fillColor="#FF3D00"/>
     </group>
 </vector>

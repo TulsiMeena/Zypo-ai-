@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -70,53 +71,73 @@ class RoomChatRepositoryImpl(
     private var activeGenerationJob: Job? = null
     private var activeAssistantMsgId: String? = null
 
-    override val chatsFlow: Flow<List<Chat>> = chatDao.getAllChats().map { entities ->
-        entities.map { it.toDomainModel() }
+    private val currentUserId = MutableStateFlow("default_user")
+
+    fun setCurrentUserId(userId: String) {
+        if (userId.isNotBlank()) {
+            currentUserId.value = userId
+        }
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val chatsFlow: Flow<List<Chat>> = currentUserId.flatMapLatest { uid ->
+        chatDao.getAllChats(uid).map { entities ->
+            entities.map { it.toDomainModel() }
+        }
     }
 
     override val settingsFlow: StateFlow<AppSettings> = _settings.asStateFlow()
     override val userFlow: StateFlow<User> = _user.asStateFlow()
     override val generationStateFlow: StateFlow<GenerationState> = _generationState.asStateFlow()
 
-    override val memoriesFlow: Flow<List<MemoryItem>> = memoryDao.getAllMemories().map { entities ->
-        entities.map { entity ->
-            val cat = try {
-                MemoryCategory.valueOf(entity.category)
-            } catch (_: Exception) {
-                MemoryCategory.PROFILE
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val memoriesFlow: Flow<List<MemoryItem>> = currentUserId.flatMapLatest { uid ->
+        memoryDao.getAllMemories(uid).map { entities ->
+            entities.map { entity ->
+                val cat = try {
+                    MemoryCategory.valueOf(entity.category)
+                } catch (_: Exception) {
+                    MemoryCategory.PROFILE
+                }
+                MemoryItem(
+                    id = entity.id,
+                    category = cat,
+                    content = entity.content,
+                    createdAt = entity.createdAt,
+                    updatedAt = entity.updatedAt,
+                    source = entity.source,
+                    enabled = entity.enabled
+                )
             }
-            MemoryItem(
-                id = entity.id,
-                category = cat,
-                content = entity.content,
-                createdAt = entity.createdAt,
-                updatedAt = entity.updatedAt,
-                source = entity.source,
-                enabled = entity.enabled
-            )
         }
     }
 
-    override val foldersFlow: Flow<List<ChatFolder>> = folderDao.getAllFolders().map { entities ->
-        entities.map { entity ->
-            ChatFolder(
-                id = entity.id,
-                name = entity.name,
-                colorHex = entity.colorHex
-            )
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val foldersFlow: Flow<List<ChatFolder>> = currentUserId.flatMapLatest { uid ->
+        folderDao.getAllFolders(uid).map { entities ->
+            entities.map { entity ->
+                ChatFolder(
+                    id = entity.id,
+                    name = entity.name,
+                    colorHex = entity.colorHex
+                )
+            }
         }
     }
 
-    override val bookmarksFlow: Flow<List<Bookmark>> = bookmarkDao.getAllBookmarks().map { entities ->
-        entities.map { entity ->
-            Bookmark(
-                id = entity.id,
-                messageId = entity.messageId,
-                chatId = entity.chatId,
-                category = entity.category,
-                note = entity.note,
-                createdAt = entity.createdAt
-            )
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val bookmarksFlow: Flow<List<Bookmark>> = currentUserId.flatMapLatest { uid ->
+        bookmarkDao.getAllBookmarks(uid).map { entities ->
+            entities.map { entity ->
+                Bookmark(
+                    id = entity.id,
+                    messageId = entity.messageId,
+                    chatId = entity.chatId,
+                    category = entity.category,
+                    note = entity.note,
+                    createdAt = entity.createdAt
+                )
+            }
         }
     }
 
@@ -137,6 +158,7 @@ class RoomChatRepositoryImpl(
         val newId = "chat_" + UUID.randomUUID().toString().take(8)
         val chatEntity = ChatEntity(
             id = newId,
+            userId = currentUserId.value,
             title = if (title.isBlank()) "New Conversation" else title,
             updatedAt = System.currentTimeMillis(),
             isPinned = false,
@@ -223,7 +245,7 @@ class RoomChatRepositoryImpl(
                     .filter { it.id != assistantMsgId }
 
                 val baseConfig = ModelConfig.getConfig(model)
-                val activeMemories = memoryDao.getEnabledMemories().map { entity ->
+                val activeMemories = memoryDao.getEnabledMemories(currentUserId.value).map { entity ->
                     val cat = try { MemoryCategory.valueOf(entity.category) } catch (_: Exception) { MemoryCategory.PROFILE }
                     MemoryItem(
                         id = entity.id,
@@ -253,19 +275,26 @@ class RoomChatRepositoryImpl(
                 )
 
                 var accumulatedText = ""
+                var lastDbUpdate = 0L
+
                 streamFlow.collect { chunk ->
                     accumulatedText += chunk
-                    val updatedMsg = assistantMessage.copy(
-                        content = accumulatedText,
-                        status = MessageStatus.STREAMING
-                    )
-                    messageDao.insertMessage(MessageEntity.fromDomainModel(updatedMsg, moshi))
-                    chatDao.updateLastMessagePreview(
-                        chatId = chatId,
-                        preview = accumulatedText.take(60),
-                        updatedAt = System.currentTimeMillis()
-                    )
+                    val now = System.currentTimeMillis()
+                    if (now - lastDbUpdate > 40L || chunk.contains("\n")) {
+                        lastDbUpdate = now
+                        val updatedMsg = assistantMessage.copy(
+                            content = accumulatedText,
+                            status = MessageStatus.STREAMING
+                        )
+                        messageDao.insertMessage(MessageEntity.fromDomainModel(updatedMsg, moshi))
+                    }
                 }
+
+                chatDao.updateLastMessagePreview(
+                    chatId = chatId,
+                    preview = accumulatedText.take(60),
+                    updatedAt = System.currentTimeMillis()
+                )
 
                 val finalMsg = assistantMessage.copy(
                     content = accumulatedText.ifBlank { "Response completed." },
@@ -537,7 +566,7 @@ class RoomChatRepositoryImpl(
     }
 
     override suspend fun exportMemoriesJson(): String {
-        val memories = memoryDao.getEnabledMemories()
+        val memories = memoryDao.getEnabledMemories(currentUserId.value)
         val jsonArr = JSONArray()
         memories.forEach { mem ->
             jsonArr.put(JSONObject().apply {

@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MemoryDao {
-    @Query("SELECT * FROM memories ORDER BY updatedAt DESC")
-    fun getAllMemories(): Flow<List<MemoryEntity>>
+    @Query("SELECT * FROM memories WHERE userId = :userId OR userId = '' ORDER BY updatedAt DESC")
+    fun getAllMemories(userId: String): Flow<List<MemoryEntity>>
 
-    @Query("SELECT * FROM memories WHERE enabled = 1 ORDER BY updatedAt DESC")
-    suspend fun getEnabledMemories(): List<MemoryEntity>
+    @Query("SELECT * FROM memories WHERE (userId = :userId OR userId = '') AND enabled = 1 ORDER BY updatedAt DESC")
+    suspend fun getEnabledMemories(userId: String): List<MemoryEntity>
 
     @Query("SELECT * FROM memories WHERE id = :id LIMIT 1")
     suspend fun getMemoryById(id: String): MemoryEntity?
