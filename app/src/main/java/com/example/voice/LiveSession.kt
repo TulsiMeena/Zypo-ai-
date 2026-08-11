@@ -149,7 +149,7 @@ class LiveSession(
 
         try {
             val mediaChunk = JSONObject().apply {
-                put("mimeType", "audio/pcm;rate=${voiceConfig.sampleRateInput}")
+                put("mimeType", "audio/pcm")
                 put("data", base64Pcm)
             }
 

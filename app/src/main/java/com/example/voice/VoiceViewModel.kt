@@ -1,7 +1,9 @@
 package com.example.voice
 
 import android.app.Application
+import android.speech.tts.TextToSpeech
 import android.util.Log
+import java.util.Locale
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,8 +56,19 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
     private var audioStreamer: AudioStreamer? = null
     private var liveSession: LiveSession? = null
     private val liveTokenManager = com.example.data.api.LiveTokenManager(application)
+    private var textToSpeech: TextToSpeech? = null
 
     init {
+        try {
+            textToSpeech = TextToSpeech(application) { status ->
+                if (status == TextToSpeech.SUCCESS) {
+                    textToSpeech?.language = Locale.US
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initializing TextToSpeech", e)
+        }
+
         audioPlayer = AudioPlayer(
             scope = viewModelScope,
             sampleRate = voiceConfig.sampleRateOutput,
@@ -109,6 +122,7 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
             onInterrupted = {
                 Log.d(TAG, "User barge-in: flushing playback queue")
                 audioPlayer?.flush()
+                try { textToSpeech?.stop() } catch (e: Exception) {}
                 _voiceState.value = VoiceState.INTERRUPTED
                 _voiceState.value = VoiceState.LISTENING
             },
@@ -133,6 +147,7 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
         audioStreamer?.stopStreaming()
         audioPlayer?.release()
         liveSession?.close()
+        try { textToSpeech?.stop() } catch (e: Exception) {}
 
         liveSession = null
         _voiceState.value = VoiceState.IDLE
@@ -168,6 +183,15 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
             newTranscripts.add(TranscriptItem(sender = sender, text = text))
         }
         _transcripts.value = newTranscripts
+
+        if (sender == "ZYPO" && _isSpeakerOn.value && text.isNotBlank()) {
+            _voiceState.value = VoiceState.AI_SPEAKING
+            try {
+                textToSpeech?.speak(text, TextToSpeech.QUEUE_ADD, null, "zypo_tts_${System.currentTimeMillis()}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in TTS speak", e)
+            }
+        }
     }
 
     private fun updateError(error: String) {
@@ -192,5 +216,11 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         stopSession()
+        try {
+            textToSpeech?.stop()
+            textToSpeech?.shutdown()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error shutting down TTS", e)
+        }
     }
 }

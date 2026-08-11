@@ -108,6 +108,19 @@ fun VoiceScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        val hasPerm = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasPerm) {
+            viewModel.startSession()
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
