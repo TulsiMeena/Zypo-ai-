@@ -73,7 +73,8 @@ fun ChatScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToPremium: () -> Unit,
-    onNavigateToVoice: () -> Unit,
+    onNavigateToMorningBriefing: () -> Unit = {},
+    onNavigateToVoice: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -207,7 +208,31 @@ fun ChatScreen(
                         onModelSelectorClick = { viewModel.showModelSelector(true) },
                         onNewChatClick = { viewModel.createNewChat() },
                         onSearchClick = onNavigateToSearch,
-                        onVoiceClick = onNavigateToVoice
+                        onMorningBriefingClick = onNavigateToMorningBriefing,
+                        onExportChatClick = {
+                            val messages = uiState.messages
+                            if (messages.isEmpty()) {
+                                viewModel.showToast("No messages to export yet!")
+                            } else {
+                                val chatTitle = uiState.activeChat?.title ?: "Zypo AI Chat"
+                                val transcript = buildString {
+                                    appendLine("# Zypo AI Chat Export")
+                                    appendLine("Chat Title: $chatTitle")
+                                    appendLine("Date: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}")
+                                    appendLine("========================================\n")
+                                    messages.forEach { msg ->
+                                        val role = if (msg.sender == com.example.data.model.MessageSender.USER) "User" else "Zypo AI"
+                                        appendLine("[$role]: ${msg.content}\n")
+                                    }
+                                }
+                                val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(android.content.Intent.EXTRA_SUBJECT, "Exported Chat: $chatTitle")
+                                    putExtra(android.content.Intent.EXTRA_TEXT, transcript)
+                                }
+                                context.startActivity(android.content.Intent.createChooser(shareIntent, "Export Chat via"))
+                            }
+                        }
                     )
 
                     val networkMonitor = remember { com.example.data.network.NetworkMonitor(context) }
@@ -243,8 +268,7 @@ fun ChatScreen(
                     onSend = { viewModel.sendMessage() },
                     onStopGeneration = { viewModel.stopGeneration() },
                     onAddAttachmentClick = { viewModel.showAttachmentSheet(true) },
-                    onRemoveAttachment = { viewModel.removeAttachment(it) },
-                    onVoiceInputClick = onNavigateToVoice
+                    onRemoveAttachment = { viewModel.removeAttachment(it) }
                 )
             },
             modifier = modifier.fillMaxSize()

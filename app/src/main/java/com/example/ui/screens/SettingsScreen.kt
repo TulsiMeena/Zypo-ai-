@@ -313,28 +313,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Section 4: Voice & Audio
-            SettingsCategoryHeader(title = "Voice & Speech", icon = Icons.Default.Mic)
-            SettingsCard {
-                Column {
-                    SettingsSwitchRow(
-                        title = "Voice Input Allowed",
-                        subtitle = "Enable speech-to-text recording",
-                        checked = settings.voiceInputEnabled,
-                        onCheckedChange = { viewModel.toggleVoiceInput(it) }
-                    )
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                    SettingsSwitchRow(
-                        title = "Auto-play Responses",
-                        subtitle = "Automatically read AI responses aloud",
-                        checked = settings.autoPlayResponses,
-                        onCheckedChange = { viewModel.toggleAutoPlayResponses(it) }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Section 5: Files & Cache
             SettingsCategoryHeader(title = "Files & Data", icon = Icons.Default.Download)
             SettingsCard {

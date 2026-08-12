@@ -28,13 +28,13 @@ import com.example.ui.screens.EmailVerificationScreen
 import com.example.ui.screens.ForgotPasswordScreen
 import com.example.ui.screens.LoginScreen
 import com.example.ui.screens.MemoryScreen
+import com.example.ui.screens.MorningBriefingScreen
 import com.example.ui.screens.PremiumScreen
 import com.example.ui.screens.PrivacyDashboardScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.SearchScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.SplashScreen
-import com.example.ui.screens.VoiceScreen
 import com.example.ui.viewmodel.ApiSettingsViewModel
 import com.example.ui.viewmodel.AuthViewModel
 import com.example.ui.viewmodel.ChatViewModel
@@ -55,7 +55,7 @@ object ZypoRoutes {
     const val PROFILE = "profile"
     const val PREMIUM = "premium"
     const val ABOUT = "about"
-    const val VOICE = "voice"
+    const val MORNING_BRIEFING = "morning_briefing"
     const val MEMORY = "memory"
     const val CUSTOM_INSTRUCTIONS = "custom_instructions"
     const val BOOKMARKS = "bookmarks"
@@ -198,7 +198,7 @@ fun ZypoNavigation(
                 onNavigateToProfile = { navController.navigate(ZypoRoutes.PROFILE) },
                 onNavigateToSettings = { navController.navigate(ZypoRoutes.SETTINGS) },
                 onNavigateToPremium = { navController.navigate(ZypoRoutes.PREMIUM) },
-                onNavigateToVoice = { navController.navigate(ZypoRoutes.VOICE) }
+                onNavigateToMorningBriefing = { navController.navigate(ZypoRoutes.MORNING_BRIEFING) }
             )
         }
 
@@ -217,7 +217,7 @@ fun ZypoNavigation(
                 onNavigateToProfile = { navController.navigate(ZypoRoutes.PROFILE) },
                 onNavigateToSettings = { navController.navigate(ZypoRoutes.SETTINGS) },
                 onNavigateToPremium = { navController.navigate(ZypoRoutes.PREMIUM) },
-                onNavigateToVoice = { navController.navigate(ZypoRoutes.VOICE) }
+                onNavigateToMorningBriefing = { navController.navigate(ZypoRoutes.MORNING_BRIEFING) }
             )
         }
 
@@ -331,18 +331,23 @@ fun ZypoNavigation(
             )
         }
 
+        // Daily Morning Briefing Screen
+        composable(ZypoRoutes.MORNING_BRIEFING) {
+            MorningBriefingScreen(
+                viewModel = chatViewModel,
+                onBackClick = { navController.popBackStack() },
+                onAskZypoClick = { initialQuery ->
+                    navController.navigate(ZypoRoutes.CHAT)
+                    chatViewModel.updateComposerText(initialQuery)
+                }
+            )
+        }
+
         // About Screen
         composable(ZypoRoutes.ABOUT) {
             AboutScreen(
                 viewModel = chatViewModel,
                 onBackClick = { navController.popBackStack() }
-            )
-        }
-
-        // Voice Assistant Screen
-        composable(ZypoRoutes.VOICE) {
-            VoiceScreen(
-                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

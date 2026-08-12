@@ -24,8 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +53,8 @@ fun NovaTopBar(
     onModelSelectorClick: () -> Unit,
     onNewChatClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onMorningBriefingClick: (() -> Unit)? = null,
+    onExportChatClick: (() -> Unit)? = null,
     onVoiceClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -128,31 +131,48 @@ fun NovaTopBar(
                 }
             }
 
-            // Right: Quick Actions (Voice, Search & New Chat)
+            // Right: Quick Actions (Briefing, Export, Search & New Chat)
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (onVoiceClick != null) {
+                if (onMorningBriefingClick != null) {
                     IconButton(
-                        onClick = onVoiceClick,
+                        onClick = onMorningBriefingClick,
                         modifier = Modifier
-                            .size(38.dp)
-                            .testTag("live_voice_button")
+                            .size(36.dp)
+                            .testTag("morning_briefing_button")
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Mic,
-                            contentDescription = "Live Voice Assistant",
+                            imageVector = Icons.Default.WbSunny,
+                            contentDescription = "Daily Morning Briefing",
+                            tint = Color(0xFFFFB300)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(2.dp))
+                }
+
+                if (onExportChatClick != null) {
+                    IconButton(
+                        onClick = onExportChatClick,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("export_chat_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Export Chat",
                             tint = ElectricCyan
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                 }
 
                 IconButton(
                     onClick = onSearchClick,
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(36.dp)
                         .testTag("search_button")
                 ) {
                     Icon(

@@ -65,7 +65,7 @@ fun ChatComposer(
     onStopGeneration: () -> Unit,
     onAddAttachmentClick: () -> Unit,
     onRemoveAttachment: (String) -> Unit,
-    onVoiceInputClick: () -> Unit,
+    onVoiceInputClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isStreaming = generationState == GenerationState.STREAMING || generationState == GenerationState.SENDING
@@ -216,27 +216,6 @@ fun ChatComposer(
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
-
-                // Voice Mic Button
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable(onClick = onVoiceInputClick)
-                        .testTag("voice_button"),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = "Voice Input",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(6.dp))
 
                 // Send or Stop Generation Button
                 if (isStreaming) {

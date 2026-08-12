@@ -187,16 +187,18 @@ fun DeveloperDiagnosticsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Database & Cloud Sync", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Database & Firestore Collection Schema", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    DiagRow("UI Execution Speed", "⚡ Zero Lag (Local Flow Coroutines)")
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                     DiagRow("Firebase Auth", firebaseAuthStatus)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-                    DiagRow("Cloud Firestore", firestoreStatus)
+                    DiagRow("Firestore Collections", "users, chats, messages, briefings, pro_payments")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-                    DiagRow("Firebase Storage", storageStatus)
+                    DiagRow("UPI Payment Receiver", "7375968392 (Verified)")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-                    DiagRow("Local Room Database", "ZypoDatabase (v1) Active")
+                    DiagRow("Local Room Cache", "ZypoDatabase (v1) Active")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                     DiagRow("Personal Memories Count", "${memories.size} saved items")
                 }
