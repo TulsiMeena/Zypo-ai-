@@ -90,24 +90,8 @@ fun ChatScreen(
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
     // Pickers & Activity Result Launchers
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            viewModel.addAttachmentsFromUris(context, uris)
-        }
-    }
-
-    val documentLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            viewModel.addAttachmentsFromUris(context, uris)
-        }
-    }
-
-    val fileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
+    val openDocumentsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris ->
         if (uris.isNotEmpty()) {
             viewModel.addAttachmentsFromUris(context, uris)
@@ -395,13 +379,55 @@ fun ChatScreen(
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             },
             onGalleryClick = {
-                galleryLauncher.launch("image/*")
+                openDocumentsLauncher.launch(arrayOf("image/*"))
             },
-            onDocumentClick = {
-                documentLauncher.launch("application/pdf")
+            onPdfClick = {
+                openDocumentsLauncher.launch(arrayOf("application/pdf"))
+            },
+            onWordClick = {
+                openDocumentsLauncher.launch(arrayOf(
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "text/plain"
+                ))
+            },
+            onSpreadsheetClick = {
+                openDocumentsLauncher.launch(arrayOf(
+                    "text/csv",
+                    "application/vnd.ms-excel",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ))
+            },
+            onPresentationClick = {
+                openDocumentsLauncher.launch(arrayOf(
+                    "application/vnd.ms-powerpoint",
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                ))
+            },
+            onCodeClick = {
+                openDocumentsLauncher.launch(arrayOf(
+                    "text/*",
+                    "application/json",
+                    "application/xml",
+                    "application/javascript"
+                ))
+            },
+            onTextClick = {
+                openDocumentsLauncher.launch(arrayOf("text/*"))
+            },
+            onAudioClick = {
+                openDocumentsLauncher.launch(arrayOf("audio/*"))
+            },
+            onArchiveClick = {
+                openDocumentsLauncher.launch(arrayOf(
+                    "application/zip",
+                    "application/x-rar-compressed",
+                    "application/x-7z-compressed",
+                    "application/x-gtar"
+                ))
             },
             onFileClick = {
-                fileLauncher.launch("*/*")
+                openDocumentsLauncher.launch(arrayOf("*/*"))
             },
             onAttachmentAdded = { viewModel.addAttachment(it) },
             onDismiss = { viewModel.showAttachmentSheet(false) }

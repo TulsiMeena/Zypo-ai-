@@ -31,8 +31,12 @@ enum class AttachmentType(val extension: String, val label: String, val iconEmoj
     IMAGE("png/jpg", "Image", "🖼️"),
     PDF("pdf", "PDF Document", "📄"),
     DOCX("docx", "Word Document", "📝"),
-    TXT("txt", "Text File", "📋"),
-    CSV("csv", "Spreadsheet", "📊"),
+    TXT("txt", "Text / Markdown", "📋"),
+    CSV("csv/excel", "Spreadsheet", "📊"),
+    POWERPOINT("pptx", "Presentation", "📈"),
+    CODE("code", "Source Code", "💻"),
+    AUDIO("audio", "Audio File", "🎙️"),
+    ARCHIVE("zip", "Archive", "📦"),
     FILE("*", "File", "📎")
 }
 

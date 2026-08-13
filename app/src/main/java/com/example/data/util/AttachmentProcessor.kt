@@ -147,6 +147,45 @@ object AttachmentProcessor {
                     }
                 }
 
+                AttachmentType.CODE -> {
+                    val codeText = try { readTextFromUri(context, uri) } catch (_: Exception) { "" }
+                    listOf(
+                        Part(
+                            text = "\n--- Attached Code File: ${attachment.name} ---\n$codeText\n--- End of Code ---"
+                        )
+                    )
+                }
+
+                AttachmentType.AUDIO -> {
+                    val base64 = processPdfUri(context, uri) // Reads bytes as Base64
+                    if (base64 != null) {
+                        val audioMime = if (attachment.mimeType.startsWith("audio/")) attachment.mimeType else "audio/mp3"
+                        listOf(
+                            Part(
+                                inlineData = InlineData(
+                                    mimeType = audioMime,
+                                    data = base64
+                                )
+                            )
+                        )
+                    } else {
+                        listOf(Part(text = "\n[Attached Audio File: ${attachment.name} (${attachment.sizeFormatted}) - Voice/Audio track]"))
+                    }
+                }
+
+                AttachmentType.POWERPOINT -> {
+                    val textContent = try { readTextFromUri(context, uri) } catch (_: Exception) { null }
+                    if (!textContent.isNull_or_blank()) {
+                        listOf(Part(text = "\n--- Attached Presentation: ${attachment.name} ---\n$textContent\n--- End of Presentation ---"))
+                    } else {
+                        listOf(Part(text = "\n[Attached Presentation Slide: ${attachment.name} (${attachment.sizeFormatted})]"))
+                    }
+                }
+
+                AttachmentType.ARCHIVE -> {
+                    listOf(Part(text = "\n[Attached Archive: ${attachment.name} (${attachment.sizeFormatted}) - Compressed file package]"))
+                }
+
                 AttachmentType.FILE -> {
                     // Fallback to text reading or mime inlineData if readable
                     val textContent = try { readTextFromUri(context, uri) } catch (_: Exception) { null }
@@ -253,15 +292,28 @@ object AttachmentProcessor {
         val lowerName = fileName.lowercase()
         return when {
             mimeType.startsWith("image/") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") ||
-                    lowerName.endsWith(".png") || lowerName.endsWith(".webp") -> AttachmentType.IMAGE
+                    lowerName.endsWith(".png") || lowerName.endsWith(".webp") || lowerName.endsWith(".gif") -> AttachmentType.IMAGE
 
             mimeType == "application/pdf" || lowerName.endsWith(".pdf") -> AttachmentType.PDF
 
-            lowerName.endsWith(".docx") || mimeType.contains("wordprocessingml") -> AttachmentType.DOCX
+            lowerName.endsWith(".docx") || lowerName.endsWith(".doc") || mimeType.contains("wordprocessingml") || mimeType.contains("msword") -> AttachmentType.DOCX
 
-            lowerName.endsWith(".csv") || mimeType == "text/csv" -> AttachmentType.CSV
+            lowerName.endsWith(".csv") || lowerName.endsWith(".xlsx") || lowerName.endsWith(".xls") || mimeType.contains("spreadsheet") || mimeType == "text/csv" -> AttachmentType.CSV
 
-            lowerName.endsWith(".txt") || mimeType.startsWith("text/") -> AttachmentType.TXT
+            lowerName.endsWith(".pptx") || lowerName.endsWith(".ppt") || mimeType.contains("presentation") -> AttachmentType.POWERPOINT
+
+            lowerName.endsWith(".kt") || lowerName.endsWith(".java") || lowerName.endsWith(".py") || lowerName.endsWith(".js") ||
+                    lowerName.endsWith(".ts") || lowerName.endsWith(".json") || lowerName.endsWith(".html") || lowerName.endsWith(".css") ||
+                    lowerName.endsWith(".cpp") || lowerName.endsWith(".c") || lowerName.endsWith(".h") || lowerName.endsWith(".sh") ||
+                    lowerName.endsWith(".xml") || lowerName.endsWith(".gradle") || lowerName.endsWith(".kts") || lowerName.endsWith(".sql") -> AttachmentType.CODE
+
+            mimeType.startsWith("audio/") || lowerName.endsWith(".mp3") || lowerName.endsWith(".m4a") || lowerName.endsWith(".wav") ||
+                    lowerName.endsWith(".aac") || lowerName.endsWith(".ogg") || lowerName.endsWith(".flac") -> AttachmentType.AUDIO
+
+            lowerName.endsWith(".zip") || lowerName.endsWith(".rar") || lowerName.endsWith(".7z") || lowerName.endsWith(".tar") ||
+                    lowerName.endsWith(".gz") || mimeType.contains("zip") || mimeType.contains("compressed") -> AttachmentType.ARCHIVE
+
+            lowerName.endsWith(".txt") || lowerName.endsWith(".md") || lowerName.endsWith(".log") || mimeType.startsWith("text/") -> AttachmentType.TXT
 
             else -> AttachmentType.FILE
         }
@@ -275,8 +327,18 @@ object AttachmentProcessor {
             lower.endsWith(".webp") -> "image/webp"
             lower.endsWith(".pdf") -> "application/pdf"
             lower.endsWith(".docx") -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            lower.endsWith(".doc") -> "application/msword"
+            lower.endsWith(".xlsx") -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            lower.endsWith(".xls") -> "application/vnd.ms-excel"
+            lower.endsWith(".pptx") -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            lower.endsWith(".ppt") -> "application/vnd.ms-powerpoint"
             lower.endsWith(".csv") -> "text/csv"
             lower.endsWith(".txt") -> "text/plain"
+            lower.endsWith(".json") -> "application/json"
+            lower.endsWith(".zip") -> "application/zip"
+            lower.endsWith(".mp3") -> "audio/mp3"
+            lower.endsWith(".m4a") -> "audio/m4a"
+            lower.endsWith(".wav") -> "audio/wav"
             else -> "application/octet-stream"
         }
     }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,16 +44,21 @@ data class AttachmentOption(
     val title: String,
     val iconEmoji: String,
     val type: AttachmentType,
-    val sampleName: String
+    val subtitle: String
 )
 
 val attachmentOptions = listOf(
-    AttachmentOption("Camera", "📷", AttachmentType.IMAGE, "photo_capture.jpg"),
-    AttachmentOption("Gallery", "🖼️", AttachmentType.IMAGE, "screenshot_ui.png"),
-    AttachmentOption("Document", "📄", AttachmentType.PDF, "project_report.pdf"),
-    AttachmentOption("File", "📎", AttachmentType.DOCX, "proposal_draft.docx"),
-    AttachmentOption("Text Code", "📋", AttachmentType.TXT, "main_script.kt"),
-    AttachmentOption("Spreadsheet", "📊", AttachmentType.CSV, "q1_metrics.csv")
+    AttachmentOption("Camera", "📷", AttachmentType.IMAGE, "Camera"),
+    AttachmentOption("Gallery", "🖼️", AttachmentType.IMAGE, "Photos"),
+    AttachmentOption("PDF", "📄", AttachmentType.PDF, "PDF"),
+    AttachmentOption("Word", "📝", AttachmentType.DOCX, "DOCX"),
+    AttachmentOption("Excel", "📊", AttachmentType.CSV, "XLSX/CSV"),
+    AttachmentOption("PPT", "📈", AttachmentType.POWERPOINT, "PPTX"),
+    AttachmentOption("Code", "💻", AttachmentType.CODE, "Code"),
+    AttachmentOption("Text", "📋", AttachmentType.TXT, "TXT/MD"),
+    AttachmentOption("Audio", "🎙️", AttachmentType.AUDIO, "MP3/Voice"),
+    AttachmentOption("ZIP", "📦", AttachmentType.ARCHIVE, "ZIP/Archive"),
+    AttachmentOption("All Files", "📎", AttachmentType.FILE, "All")
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +66,15 @@ val attachmentOptions = listOf(
 fun AttachmentSheet(
     onCameraClick: () -> Unit,
     onGalleryClick: () -> Unit,
-    onDocumentClick: () -> Unit,
+    onDocumentClick: () -> Unit = {},
+    onPdfClick: () -> Unit = onDocumentClick,
+    onWordClick: () -> Unit = onDocumentClick,
+    onSpreadsheetClick: () -> Unit = onDocumentClick,
+    onPresentationClick: () -> Unit = onDocumentClick,
+    onCodeClick: () -> Unit = onDocumentClick,
+    onTextClick: () -> Unit = onDocumentClick,
+    onAudioClick: () -> Unit = onDocumentClick,
+    onArchiveClick: () -> Unit = onDocumentClick,
     onFileClick: () -> Unit,
     onAttachmentAdded: (Attachment) -> Unit,
     onDismiss: () -> Unit,
@@ -78,100 +92,99 @@ fun AttachmentSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = "Add Attachment",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Text(
-                text = "Select a media source or document format",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Attach File",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Select type to upload",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth(),
-                userScrollEnabled = false
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 items(attachmentOptions) { option ->
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .border(
                                 width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
-                                shape = RoundedCornerShape(16.dp)
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(12.dp)
                             )
                             .clickable {
                                 when (option.title) {
                                     "Camera" -> onCameraClick()
                                     "Gallery" -> onGalleryClick()
-                                    "Document" -> onDocumentClick()
-                                    "File", "Text Code", "Spreadsheet" -> onFileClick()
-                                    else -> {
-                                        val newAttachment = Attachment(
-                                            id = "att_" + UUID.randomUUID().toString().take(6),
-                                            name = option.sampleName,
-                                            type = option.type,
-                                            sizeFormatted = "1.8 MB"
-                                        )
-                                        onAttachmentAdded(newAttachment)
-                                    }
+                                    "PDF" -> onPdfClick()
+                                    "Word" -> onWordClick()
+                                    "Excel" -> onSpreadsheetClick()
+                                    "PPT" -> onPresentationClick()
+                                    "Code" -> onCodeClick()
+                                    "Text" -> onTextClick()
+                                    "Audio" -> onAudioClick()
+                                    "ZIP" -> onArchiveClick()
+                                    "All Files" -> onFileClick()
+                                    else -> onFileClick()
                                 }
                                 onDismiss()
                             }
                             .testTag("attachment_option_${option.title.lowercase().replace(" ", "_")}"),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(14.dp),
+                                .padding(horizontal = 8.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
+                                    .size(32.dp)
                                     .clip(CircleShape)
                                     .background(ElectricCyan.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = option.iconEmoji,
-                                    fontSize = 20.sp
+                                    fontSize = 15.sp
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
 
-                            Column {
-                                Text(
-                                    text = option.title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = option.type.extension.uppercase(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = ElectricCyan
-                                )
-                            }
+                            Text(
+                                text = option.title,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                fontSize = 12.sp
+                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
